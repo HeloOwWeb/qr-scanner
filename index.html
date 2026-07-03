@@ -7,8 +7,8 @@
   
   <body>
     <button id="startBtn">Démarrer scan</button>
-    <button onclick="startScanner()" style="display:none;">Scanner un autre QR</button>
-
+    <button id="rescanBtn" style="display:none;">Scanner un autre QR</button>
+    
     <div id="reader" style="width:300px;"></div>
     
     <p id="result">En attente...</p>
@@ -17,77 +17,71 @@
       const successBeep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
       let scanner;
       const API_URL = "https://script.google.com/macros/s/AKfycbzyJg_d5a5FSaXK_My9l5VvlmiVQSowoIm4mcFiTAN7LqTEc8dvhzfbBPWWlMgazpgd/exec";
-
-      function onScanSuccess(decodedText) {  
-        // 🛑 STOP scanner immédiatement
-        scanner.stop().then(() => {
-          scanner.clear();
-        });
-        
+      
+      function onScanSuccess(decodedText) {
+      
+        // 🛑 stop scanner proprement
+        try {
+          scanner.stop().then(() => scanner.clear());
+        } catch (e) {}
+      
         const url = API_URL + "?id=" + decodedText + "&t=" + new Date().getTime();
       
-       fetch(url)
-        .then(r => r.text())
-        .then(t => {      
-          const res = JSON.parse(t);
-          const color = res.statut === "VALIDÉ" ? "green" : "red";
+        fetch(url)
+          .then(r => r.text())
+          .then(t => {
       
-          if (!res || !res.statut) {
-            document.getElementById("result").innerHTML = "❌ Réponse invalide";
-            return;
-          }
+            const res = JSON.parse(t);
       
-          // ❌ cas refus immédiat
-          if (res.statut === "REFUSÉ") {
+            if (!res || !res.statut) {
+              document.getElementById("result").innerHTML = "❌ Réponse invalide";
+              return;
+            }
+      
+            // ❌ INCONNU
+            if (res.statut === "INCONNU") {
+              document.getElementById("result").innerHTML = "❌ Inconnu";
+              return;
+            }
+      
+            // ❌ REFUSÉ
+            if (res.statut === "REFUSÉ") {
+              document.getElementById("result").innerHTML =
+                "<b style='color:orange'>REFUSÉ</b><br>" +
+                "Nom : " + (res.nom || "") + "<br>" +
+                "Prénom : " + (res.prenom || "") + "<br>" +
+                "Prof : " + (res.prof || "") + "<br>" +
+                "Motif : Hors créneau";
+      
+              if (navigator.vibrate) navigator.vibrate(600);
+              return;
+            }
+      
+            // 🔊 VALIDÉ
+            const color = "green";
+      
+            successBeep.play();
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      
             document.getElementById("result").innerHTML =
-              "<b style='color:orange'>REFUSÉ</b><br>" +
+              "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
+              "Prof : " + (res.prof || "") + "<br>" +
+              "Créneau : " + (res.debut || "") + " → " + (res.fin || "") + "<br>" +
               "Nom : " + (res.nom || "") + "<br>" +
               "Prénom : " + (res.prenom || "") + "<br>" +
-              "Prof : " + (res.prof || "") + "<br>" +
-              "Motif : Hors créneau";
-        
-            if (navigator.vibrate) navigator.vibrate(600);
-            return;
-          }
-        
-          // ❌ inconnu
-          if (res.statut === "INCONNU") {
-            document.getElementById("result").innerHTML = "❌ Inconnu";
-            return;
-          }
-
-          if (res.statut === "VALIDÉ") {
-            successBeep.play();
-          if (navigator.vibrate) {
-            navigator.vibrate([200, 100, 200]);
-          }
-        } else {
-          if (navigator.vibrate) {
-            navigator.vibrate(500);
-          }
-          
-        }
-      
-          document.getElementById("result").innerHTML =
-            "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
-            "Prof : " + (res.prof || "") + "<br>" +
-            "Créneau : " + (res.debut || "") + " → " + (res.fin || "") + "<br>" +
-            "Nom : " + (res.nom || "") + "<br>" +
-            "Prénom : " + (res.prenom || "") + "<br>" +
-            "Mineur ? : " + (res.mineur || "") + "<br>" +
-            "Comment il repart du cours : " + (res.depart || "") + "<br>" +
-            "Allergies : " + (res.allergies || "") + "<br>" +
-            "Cas médical : " + (res.casmedicale || "") + "<br>" +
-            "Contact en cas d'urgence : " + (res.telephone || "") + "<br>" +
-            "Informations autres : " + (res.infos || "");
-      
-        })
-        .catch(err => {
-          document.getElementById("result").innerHTML =
-            "❌ Erreur API : " + err;
-        });
+              "Mineur ? : " + (res.mineur || "") + "<br>" +
+              "Comment il repart du cours : " + (res.depart || "") + "<br>" +
+              "Allergies : " + (res.allergies || "") + "<br>" +
+              "Cas médical : " + (res.casmedicale || "") + "<br>" +
+              "Contact : " + (res.telephone || "") + "<br>" +
+              "Infos : " + (res.infos || "");
+          })
+          .catch(err => {
+            document.getElementById("result").innerHTML =
+              "❌ Erreur API : " + err;
+          });
       }
-
+      
       function startScanner() {
       
         document.getElementById("result").innerText = "📷 Démarrage caméra...";
@@ -100,17 +94,17 @@
         };
       
         scanner.start(
-          { facingMode: { exact: "environment" } },   // 👈 caméra arrière
+          { facingMode: { ideal: "environment" } },
           config,
-          (decodedText) => {
-            onScanSuccess(decodedText);
-          },
-          (error) => {
-            // erreurs de scan ignorées (normal)
-          }
+          onScanSuccess
         ).then(() => {
-          document.getElementById("result").innerText =
-            "📷 Caméra arrière active";
+      
+          document.getElementById("result").innerText = "📷 Caméra active";
+      
+          // 🔥 gestion boutons propre
+          document.getElementById("startBtn").style.display = "none";
+          document.getElementById("rescanBtn").style.display = "inline-block";
+      
         }).catch(err => {
           document.getElementById("result").innerText =
             "❌ Erreur caméra : " + err;
@@ -118,14 +112,13 @@
       }
       
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("startBtn").addEventListener("click", function () {
-          startScanner();
-          this.style.display = "none";
-          document.getElementById("rescanBtn").style.display = "inline-block";
-        });
+      
+        document.getElementById("startBtn").addEventListener("click", startScanner);
+      
         document.getElementById("rescanBtn").addEventListener("click", function () {
           startScanner();
         });
+      
       });
     </script>
   
