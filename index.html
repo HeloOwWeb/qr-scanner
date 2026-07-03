@@ -7,13 +7,14 @@
   
   <body>
     <button id="startBtn">Démarrer scan</button>
-    <button onclick="startScanner()">Scanner un autre QR</button>
+    <button onclick="startScanner()" style="display:none;">Scanner un autre QR</button>
 
     <div id="reader" style="width:300px;"></div>
     
     <p id="result">En attente...</p>
   
     <script>
+      const successBeep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
       let scanner;
       const API_URL = "https://script.google.com/macros/s/AKfycbzyJg_d5a5FSaXK_My9l5VvlmiVQSowoIm4mcFiTAN7LqTEc8dvhzfbBPWWlMgazpgd/exec";
 
@@ -36,10 +37,36 @@
             return;
           }
       
+          // ❌ cas refus immédiat
+          if (res.statut === "REFUSÉ") {
+            document.getElementById("result").innerHTML =
+              "<b style='color:orange'>REFUSÉ</b><br>" +
+              "Nom : " + (res.nom || "") + "<br>" +
+              "Prénom : " + (res.prenom || "") + "<br>" +
+              "Prof : " + (res.prof || "") + "<br>" +
+              "Motif : Hors créneau";
+        
+            if (navigator.vibrate) navigator.vibrate(600);
+            return;
+          }
+        
+          // ❌ inconnu
           if (res.statut === "INCONNU") {
             document.getElementById("result").innerHTML = "❌ Inconnu";
             return;
           }
+
+          if (res.statut === "VALIDÉ") {
+            successBeep.play();
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+          }
+        } else {
+          if (navigator.vibrate) {
+            navigator.vibrate(500);
+          }
+          
+        }
       
           document.getElementById("result").innerHTML =
             "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
@@ -91,7 +118,14 @@
       }
       
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("startBtn").addEventListener("click", startScanner);
+        document.getElementById("startBtn").addEventListener("click", function () {
+          startScanner();
+          this.style.display = "none";
+          document.getElementById("rescanBtn").style.display = "inline-block";
+        });
+        document.getElementById("rescanBtn").addEventListener("click", function () {
+          startScanner();
+        });
       });
     </script>
   
