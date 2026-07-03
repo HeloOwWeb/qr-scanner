@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Scan QR</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+  </head>
+  
+  <body>
+    <h2>Scanner QR</h2>
+  
+    <div id="reader" style="width:300px;"></div>
+  
+    <p id="result">En attente...</p>
+  
+    <script>
+    const API_URL = "COLLE_ICI_TON_URL_APPS_SCRIPT";
+    
+    function onScanSuccess(decodedText) {
+    
+      fetch(API_URL + "?id=" + decodedText)
+        .then(r => r.json())
+        .then(res => {
+    
+          let color = res.statut === "VALIDÉ" ? "green" : "red";
+    
+          document.getElementById("result").innerHTML =
+            "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
+            "Nom : " + res.nom + "<br>" +
+            "Classe : " + res.classe + "<br>" +
+            "Prof : " + res.prof;
+        });
+    }
+    
+    const scanner = new Html5Qrcode("reader");
+    
+    Html5Qrcode.getCameras().then(devices => {
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+      );
+    });
+    </script>
+  
+  </body>
+</html>
