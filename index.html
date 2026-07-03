@@ -31,17 +31,17 @@
             const color = res.statut === "VALIDÉ" ? "green" : "red";
       
             document.getElementById("result").innerHTML =
-              "<b style='color:" + color + "'>" + response.statut + "</b><br>" +
-              "Prof : " + (response.prof || "") + "<br>" +
-              "Créneau : " + (response.debut || "") + " → " + (response.fin || "") + "<br>" +
-              "Nom : " + (response.nom || "") + "<br>" +
-              "Prénom : " + (response.prenom || "") + "<br>" +
-              "Mineur ? : " + (response.mineur || "") + "<br>" +
-              "Comment il repart du cours : " + (response.depart || "") + "<br>" +
-              "Allergies : " + (response.allergies || "") + "<br>" +
-              "Cas médical : " + (response.casmedicale || "") + "<br>" +
-              "Contact en cas d'urgence : " + (response.telephone || "") + "<br>" +
-              "Informations autres : " + (response.infos || "");
+              "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
+              "Prof : " + (res.prof || "") + "<br>" +
+              "Créneau : " + (res.debut || "") + " → " + (res.fin || "") + "<br>" +
+              "Nom : " + (res.nom || "") + "<br>" +
+              "Prénom : " + (res.prenom || "") + "<br>" +
+              "Mineur ? : " + (res.mineur || "") + "<br>" +
+              "Comment il repart du cours : " + (res.depart || "") + "<br>" +
+              "Allergies : " + (res.allergies || "") + "<br>" +
+              "Cas médical : " + (res.casmedicale || "") + "<br>" +
+              "Contact en cas d'urgence : " + (res.telephone || "") + "<br>" +
+              "Informations autres : " + (res.infos || "");
           })
           .catch(err => {
             document.getElementById("result").innerHTML =
