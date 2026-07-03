@@ -14,6 +14,40 @@
   
     <script>
       let scanner;
+      const API_URL = "https://script.google.com/macros/s/AKfycbyPFTbA_XDIEqbD8D6evkzU6NwkkB955xYTDv6a1P19_RLEO30xeV-Rb9yyRHNnmBXX/exec";
+
+      function onScanSuccess(decodedText) {  
+        const url = API_URL + "?id=" + decodedText;
+      
+        fetch(url)
+          .then(r => r.json())
+          .then(res => {
+      
+            if (res.statut === "INCONNU") {
+              document.getElementById("result").innerHTML = "❌ Inconnu";
+              return;
+            }
+      
+            const color = res.statut === "VALIDÉ" ? "green" : "red";
+      
+            document.getElementById("result").innerHTML =
+              "<b style='color:" + color + "'>" + response.statut + "</b><br>" +
+              "Prof : " + (response.prof || "") + "<br>" +
+              "Créneau : " + (response.debut || "") + " → " + (response.fin || "") + "<br>" +
+              "Nom : " + (response.nom || "") + "<br>" +
+              "Prénom : " + (response.prenom || "") + "<br>" +
+              "Mineur ? : " + (response.mineur || "") + "<br>" +
+              "Comment il repart du cours : " + (response.depart || "") + "<br>" +
+              "Allergies : " + (response.allergies || "") + "<br>" +
+              "Cas médical : " + (response.casmedicale || "") + "<br>" +
+              "Contact en cas d'urgence : " + (response.telephone || "") + "<br>" +
+              "Informations autres : " + (response.infos || "");
+          })
+          .catch(err => {
+            document.getElementById("result").innerHTML =
+              "❌ Erreur API : " + err;
+          });
+      }
 
       function startScanner() {
       
@@ -30,8 +64,7 @@
           { facingMode: { exact: "environment" } },   // 👈 caméra arrière
           config,
           (decodedText) => {
-            document.getElementById("result").innerText =
-              "SCAN OK : " + decodedText;
+            onScanSuccess(decodedText);
           },
           (error) => {
             // erreurs de scan ignorées (normal)
