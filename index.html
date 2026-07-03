@@ -27,7 +27,7 @@
         };
       
         scanner.start(
-          { facingMode: { ideal: "environment" } },   // 👈 caméra arrière
+          { facingMode: { exact: "environment" } },   // 👈 caméra arrière
           config,
           (decodedText) => {
             document.getElementById("result").innerText =
