@@ -26,29 +26,19 @@
           qrbox: 250
         };
       
-        Html5Qrcode.getCameras().then(devices => {
-      
-          if (!devices || devices.length === 0) {
-            document.getElementById("result").innerText = "❌ Aucune caméra détectée";
-            return;
+        scanner.start(
+          { facingMode: { ideal: "environment" } },   // 👈 caméra arrière
+          config,
+          (decodedText) => {
+            document.getElementById("result").innerText =
+              "SCAN OK : " + decodedText;
+          },
+          (error) => {
+            // erreurs de scan ignorées (normal)
           }
-      
-          const cameraId = devices[0].id;
-      
-          scanner.start(
-            cameraId,
-            config,
-            (decodedText) => {
-              document.getElementById("result").innerText =
-                "SCAN OK : " + decodedText;
-            },
-            (error) => {
-              // on ignore les erreurs de scan continu
-            }
-          ).then(() => {
-            document.getElementById("result").innerText = "📷 Caméra active";
-          });
-      
+        ).then(() => {
+          document.getElementById("result").innerText =
+            "📷 Caméra arrière active";
         }).catch(err => {
           document.getElementById("result").innerText =
             "❌ Erreur caméra : " + err;
