@@ -13,21 +13,51 @@
     <p id="result">En attente...</p>
   
     <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyrrTO7pFERcssM1ywPIbl2WvQp13OfkMlZVVS8pw3LsOsE6xkXB4ilv1cno8Py9Xjv/exec";
-    
-    function onScanSuccess(decodedText) {
-      document.getElementById("result").innerText = decodedText;
-    }
-    
-    const scanner = new Html5Qrcode("reader");
-    
-    Html5Qrcode.getCameras().then(devices => {
-      scanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        onScanSuccess
-      );
-    });
+      let scanner;
+
+      function startScanner() {
+      
+        document.getElementById("result").innerText = "📷 Démarrage caméra...";
+      
+        scanner = new Html5Qrcode("reader");
+      
+        const config = {
+          fps: 10,
+          qrbox: 250
+        };
+      
+        Html5Qrcode.getCameras().then(devices => {
+      
+          if (!devices || devices.length === 0) {
+            document.getElementById("result").innerText = "❌ Aucune caméra détectée";
+            return;
+          }
+      
+          const cameraId = devices[0].id;
+      
+          scanner.start(
+            cameraId,
+            config,
+            (decodedText) => {
+              document.getElementById("result").innerText =
+                "SCAN OK : " + decodedText;
+            },
+            (error) => {
+              // on ignore les erreurs de scan continu
+            }
+          ).then(() => {
+            document.getElementById("result").innerText = "📷 Caméra active";
+          });
+      
+        }).catch(err => {
+          document.getElementById("result").innerText =
+            "❌ Erreur caméra : " + err;
+        });
+      }
+      
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("startBtn").addEventListener("click", startScanner);
+      });
     </script>
   
   </body>
