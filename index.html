@@ -7,6 +7,7 @@
   
   <body>
     <button id="startBtn">Démarrer scan</button>
+    <button onclick="startScanner()">Scanner un autre QR</button>
 
     <div id="reader" style="width:300px;"></div>
     
@@ -17,15 +18,18 @@
       const API_URL = "https://script.google.com/macros/s/AKfycbzyJg_d5a5FSaXK_My9l5VvlmiVQSowoIm4mcFiTAN7LqTEc8dvhzfbBPWWlMgazpgd/exec";
 
       function onScanSuccess(decodedText) {  
-        const url = API_URL + "?id=" + decodedText;
+        // 🛑 STOP scanner immédiatement
+        scanner.stop().then(() => {
+          scanner.clear();
+        });
+        
+        const url = API_URL + "?id=" + decodedText + "&t=" + new Date().getTime();
       
        fetch(url)
         .then(r => r.text())
-        .then(t => {
-      
-          console.log("RAW RESPONSE:", t);
-      
+        .then(t => {      
           const res = JSON.parse(t);
+          const color = res.statut === "VALIDÉ" ? "green" : "red";
       
           if (!res || !res.statut) {
             document.getElementById("result").innerHTML = "❌ Réponse invalide";
@@ -36,8 +40,6 @@
             document.getElementById("result").innerHTML = "❌ Inconnu";
             return;
           }
-      
-          const color = res.statut === "VALIDÉ" ? "green" : "red";
       
           document.getElementById("result").innerHTML =
             "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
