@@ -13,7 +13,7 @@
     <p id="result">En attente...</p>
   
     <script>
-    const API_URL = "COLLE_ICI_TON_URL_APPS_SCRIPT";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyrrTO7pFERcssM1ywPIbl2WvQp13OfkMlZVVS8pw3LsOsE6xkXB4ilv1cno8Py9Xjv/exec";
     
     function onScanSuccess(decodedText) {
     
@@ -26,8 +26,16 @@
           document.getElementById("result").innerHTML =
             "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
             "Nom : " + res.nom + "<br>" +
-            "Classe : " + res.classe + "<br>" +
-            "Prof : " + res.prof;
+            "Prof : " + res.prof + "<br>" +
+            "Créneau : " + res.debut + " → " + res.fin"<br>" +
+            "Nom : " + res.nom + "<br>" +
+            "Prénom : " + res.prenom + "<br>" +
+            "Mineur ? : " + res.mineur + "<br>" +
+            "Comment il repart du cours : " + res.depart + "<br>" +
+            "Allergies : " + res.allergies + "<br>" +
+            "Cas médicale : " + res.casmedicale + "<br>" +
+            "Contact en cas d'urgence : " + res.telephone + "<br>" +
+            "Informations autres : " + res.infos;
         });
     }
     
