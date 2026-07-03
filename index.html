@@ -16,29 +16,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyrrTO7pFERcssM1ywPIbl2WvQp13OfkMlZVVS8pw3LsOsE6xkXB4ilv1cno8Py9Xjv/exec";
     
     function onScanSuccess(decodedText) {
-
-      const url = API_URL + "?id=" + encodeURIComponent(decodedText);
-    
-      fetch(url)
-        .then(res => res.text())
-        .then(text => {
-    
-          console.log("Réponse brute API :", text);
-    
-          const data = JSON.parse(text);
-    
-          let color = data.statut === "VALIDÉ" ? "green" : "red";
-    
-          document.getElementById("result").innerHTML =
-            "<b style='color:" + color + "'>" + data.statut + "</b><br>" +
-            "Nom : " + data.nom + "<br>" +
-            "Classe : " + data.classe + "<br>" +
-            "Prof : " + data.prof;
-        })
-        .catch(err => {
-          document.getElementById("result").innerHTML =
-            "❌ Erreur fetch : " + err;
-        });
+      document.getElementById("result").innerText = decodedText;
     }
     
     const scanner = new Html5Qrcode("reader");
