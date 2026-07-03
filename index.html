@@ -19,34 +19,44 @@
       function onScanSuccess(decodedText) {  
         const url = API_URL + "?id=" + decodedText;
       
-        fetch(url)
-          .then(r => r.json())
-          .then(res => {
-            console.log(res);
-            if (res.statut === "INCONNU") {
-              document.getElementById("result").innerHTML = "❌ Inconnu";
-              return;
-            }
+       fetch(url)
+        .then(r => r.text())
+        .then(t => {
       
-            const color = res.statut === "VALIDÉ" ? "green" : "red";
+          console.log("RAW RESPONSE:", t);
       
-            document.getElementById("result").innerHTML =
-              "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
-              "Prof : " + (res.prof || "") + "<br>" +
-              "Créneau : " + (res.debut || "") + " → " + (res.fin || "") + "<br>" +
-              "Nom : " + (res.nom || "") + "<br>" +
-              "Prénom : " + (res.prenom || "") + "<br>" +
-              "Mineur ? : " + (res.mineur || "") + "<br>" +
-              "Comment il repart du cours : " + (res.depart || "") + "<br>" +
-              "Allergies : " + (res.allergies || "") + "<br>" +
-              "Cas médical : " + (res.casmedicale || "") + "<br>" +
-              "Contact en cas d'urgence : " + (res.telephone || "") + "<br>" +
-              "Informations autres : " + (res.infos || "");
-          })
-          .catch(err => {
-            document.getElementById("result").innerHTML =
-              "❌ Erreur API : " + err;
-          });
+          const res = JSON.parse(t);
+      
+          if (!res || !res.statut) {
+            document.getElementById("result").innerHTML = "❌ Réponse invalide";
+            return;
+          }
+      
+          if (res.statut === "INCONNU") {
+            document.getElementById("result").innerHTML = "❌ Inconnu";
+            return;
+          }
+      
+          const color = res.statut === "VALIDÉ" ? "green" : "red";
+      
+          document.getElementById("result").innerHTML =
+            "<b style='color:" + color + "'>" + res.statut + "</b><br>" +
+            "Prof : " + (res.prof || "") + "<br>" +
+            "Créneau : " + (res.debut || "") + " → " + (res.fin || "") + "<br>" +
+            "Nom : " + (res.nom || "") + "<br>" +
+            "Prénom : " + (res.prenom || "") + "<br>" +
+            "Mineur ? : " + (res.mineur || "") + "<br>" +
+            "Comment il repart du cours : " + (res.depart || "") + "<br>" +
+            "Allergies : " + (res.allergies || "") + "<br>" +
+            "Cas médical : " + (res.casmedicale || "") + "<br>" +
+            "Contact en cas d'urgence : " + (res.telephone || "") + "<br>" +
+            "Informations autres : " + (res.infos || "");
+      
+        })
+        .catch(err => {
+          document.getElementById("result").innerHTML =
+            "❌ Erreur API : " + err;
+        });
       }
 
       function startScanner() {
